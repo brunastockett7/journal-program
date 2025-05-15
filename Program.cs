@@ -1,94 +1,101 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-// -------------------------------
-// Extra Credit Note:
-// This journal program exceeds core requirements by including:
-// - Mood tracking: the user selects how they feel after writing
-// - Gratitude reflection: the user adds one thing they're thankful for
-// These features encourage emotional reflection and improve journaling consistency.
-// -------------------------------
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 class Program
 {
-    static void Main(string[] args)
+    // EXCEEDS REQUIREMENTS:
+    // - This program adds a mood tracker to each journal entry.
+    // - It also saves and loads the journal using JSON format for better structure and readability.
+
+    static List<string> prompts = new List<string>
+    {
+        "Who was the most interesting person I interacted with today?",
+        "What was the best part of my day?",
+        "How did I see the hand of the Lord in my life today?",
+        "What was the strongest emotion I felt today?",
+        "If I had one thing I could do over today, what would it be?"
+    };
+
+    static void Main()
     {
         Journal journal = new Journal();
-        List<string> prompts = new List<string>
-        {
-            "Who was the most interesting person I interacted with today?",
-            "What was the best part of my day?",
-            "How did I see the hand of the Lord in my life today?",
-            "What was the strongest emotion I felt today?",
-            "If I had one thing I could do over today, what would it be?"
-        };
-
         string? choice = "";
+
         while (choice != "5")
         {
-            Console.WriteLine("\nPlease select one of the following choices:");
-            Console.WriteLine("1. Write");
-            Console.WriteLine("2. Display");
-            Console.WriteLine("3. Load");
-            Console.WriteLine("4. Save");
-            Console.WriteLine("5. Quit");
-            Console.Write("What would you like to do? ");
-            choice = Console.ReadLine()?.Trim();
+            Console.WriteLine("\nJournal Menu:");
+            Console.WriteLine("1. Write a new entry");
+            Console.WriteLine("2. Display the journal");
+            Console.WriteLine("3. Save the journal to a file");
+            Console.WriteLine("4. Load the journal from a file");
+            Console.WriteLine("5. Exit");
+            Console.Write("Choose an option: ");
+            choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    string prompt = GetRandomPrompt(prompts);
-                    Console.WriteLine($"\nPrompt: {prompt}");
-                    Console.Write("Your response: ");
-                    string? response = Console.ReadLine();
-
-                    Console.Write("How are you feeling? (Happy, Sad, Stressed, etc.): ");
-                    string? mood = Console.ReadLine();
-
-                    Console.Write("One thing you're grateful for today: ");
-                    string? gratitude = Console.ReadLine();
-
-                    string date = DateTime.Now.ToString("MM/dd/yyyy");
-                    Entry newEntry = new Entry(date, prompt, response, mood, gratitude);
-                    journal.AddEntry(newEntry);
+                    WriteEntry(journal);
                     break;
-
                 case "2":
-                    journal.DisplayAll();
+                    journal.DisplayEntries();
                     break;
-
                 case "3":
-                    Console.Write("Enter filename to load: ");
-                    string? loadFile = Console.ReadLine();
-                    journal.LoadFromFile(loadFile);
-                    break;
-
-                case "4":
-                    Console.Write("Enter filename to save: ");
+                    Console.Write("Enter filename to save (e.g., journal.json): ");
                     string? saveFile = Console.ReadLine();
-                    journal.SaveToFile(saveFile);
+                    if (!string.IsNullOrWhiteSpace(saveFile))
+                    {
+                        journal.SaveToFile(saveFile);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Filename cannot be empty.");
+                    }
                     break;
-
+                case "4":
+                    Console.Write("Enter filename to load (e.g., journal.json): ");
+                    string? loadFile = Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(loadFile))
+                    {
+                        journal.LoadFromFile(loadFile);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Filename cannot be empty.");
+                    }
+                    break;
                 case "5":
                     Console.WriteLine("Goodbye!");
                     break;
-
                 default:
-                    Console.WriteLine("Invalid choice. Please select 1–5.");
+                    Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
         }
     }
 
-    static string GetRandomPrompt(List<string> prompts)
+    static void WriteEntry(Journal journal)
     {
         Random rand = new Random();
-        int index = rand.Next(prompts.Count);
-        return prompts[index];
+        string prompt = prompts[rand.Next(prompts.Count)];
+
+        Console.WriteLine($"\nPrompt: {prompt}");
+
+        Console.Write("Your response: ");
+        string? response = Console.ReadLine();
+
+        Console.Write("Your mood today: ");
+        string? mood = Console.ReadLine();
+
+        if (!string.IsNullOrWhiteSpace(response) && !string.IsNullOrWhiteSpace(mood))
+        {
+            Entry entry = new Entry(prompt, response, mood);
+            journal.AddEntry(entry);
+            Console.WriteLine("Entry added successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Response and mood cannot be empty.");
+        }
     }
 }
-
-
